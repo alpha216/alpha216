@@ -133,10 +133,63 @@ canvas {
 .page p {
   max-width: 34em;
   margin: 0 0 1em;
-  /* 본문 글꼴: Anton(메뉴)과 어울리는 살짝 좁은 산세리프 */
-  font: 500 clamp(17px, 1.5vw, 23px) / 1.55 "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  /* 본문 글꼴: P3R 메뉴 이름처럼 굵고 또렷한 산세리프 */
+  font: 700 clamp(30px, 2.3vw, 40px) / 1.55 "Fira Sans", "Segoe UI", sans-serif;
   letter-spacing: .01em;
+  color: #fff;
+}
+
+/* EXPERIENCES: 경력마다 제목(메뉴 글자 스타일) + 회사·기간 + 설명 목록 */
+.job {
+  max-width: 46em;
+  margin-bottom: clamp(28px, 4.5vh, 56px);
+  font: 600 clamp(16px, 1.3vw, 21px) / 1.5 "Fira Sans", "Segoe UI", sans-serif;
+}
+.job:last-child {
+  margin-bottom: 0;
+}
+/* 왼쪽 메뉴의 선택 안 된 항목과 같은 모양: 옅은 하늘색 Anton, 기울임 + 경력마다 다른 살짝 비틀림 */
+.job-title {
+  margin: 0 0 .25em;
+  width: fit-content;
+  font: 400 clamp(34px, 3.4vw, 60px) / .95 Anton, Impact, sans-serif;
+  color: #9fe6ff;
+  transform-origin: left bottom;
+}
+.job:nth-child(2) .job-title { --tilt: 1.5deg; }
+.job:nth-child(3) .job-title { --tilt: -1deg; }
+.job-title small {
+  font-size: .5em;
+  color: #fff;
+  vertical-align: .55em;
+}
+/* .page p(ABOUT 본문)의 큰 글씨를 물려받지 않도록 .page를 붙여 덮어씁니다. */
+.page .job-meta {
+  max-width: none;
+  font: inherit;
+  letter-spacing: normal;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .2em 1.5em;
+  margin: 0 0 .6em;
+  padding-bottom: .5em;
+  border-bottom: 1px solid rgba(159, 230, 255, .35);
+  color: #fff;
+}
+.job-meta time {
+  color: #9fe6ff;
+}
+.job ul {
+  margin: 0;
+  padding-left: 1.1em;
   color: #dbe6ff;
+}
+.job li + li {
+  margin-top: .35em;
+}
+.job li::marker {
+  color: #e8223a;
 }
 
 /* 메뉴: 선택 안 된 항목은 옅은 하늘색으로 기울어진 글자,
@@ -207,6 +260,16 @@ canvas {
   rotate: 13deg;
   background: #afaaff;
   mask: url("/menu/wedge-back.svg") center / 100% 100% no-repeat;
+}
+/* 글자 전체 뒤의 옅은 보라 띠: 쐐기 밖으로 나온 검은 글자도 어두운 배경 위에서 잘 보이게 합니다.
+   span 안에 있어서 글자와 같이 -13° 기웁니다. */
+.menu button[aria-current="true"] span::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: .02em -.22em .02em -.22em;
+  background: #afaaff;
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
 }
 .menu button[aria-current="true"]::before,
 .menu button[aria-current="true"]::after {
