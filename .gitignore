@@ -1,7 +1,13 @@
-# macOS
+node_modules/
+dist/
 .DS_Store
+playwright-report/
+test-results/
 .AppleDouble
 .LSOverride
 *.swp
 *.swo
 *~
+
+# 공개 저장소에 올리지 않는 개인 파일
+old/assets/Minsung-Kim-Resume.pdf

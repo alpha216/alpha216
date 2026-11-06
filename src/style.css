@@ -1,0 +1,85 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #c4d5ee;
+}
+#scene {
+  width: 100%;
+  height: 100svh;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#error {
+  position: fixed;
+  inset: 45% 20px auto;
+  text-align: center;
+  color: #69545a;
+  font: 14px sans-serif;
+}
+
+/* 캔버스 위 HTML 타이틀 */
+/* left·top·width·--font는 titleOverlay.js가 칠판 위치를 계산해 매번 넣어줍니다. 아래 값은 계산 전 기본값입니다. */
+#title {
+  --font: clamp(64px, 12vw, 176px);
+  --bar-width: calc(var(--font) * .2);
+  --gap: calc(var(--font) * .16);
+  position: fixed;
+  top: 22vh;
+  left: 0;
+  width: 64vw;
+  pointer-events: none;
+  z-index: 1;
+}
+.title-text {
+  margin: 0;
+  padding: .06em 0 .02em calc(var(--bar-width) + var(--gap));
+  /* 외곽선 층과 채움 층을 같은 칸에 겹쳐 놓습니다. */
+  display: grid;
+  font: 400 var(--font) / .9 Anton, Impact, "Arial Narrow", sans-serif;
+  letter-spacing: .01em;
+  min-height: 1.86em;
+}
+.title-outline,
+.title-fill {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+/* 채움이 사라졌을 때 보이는 흰 외곽선 */
+.title-outline {
+  color: transparent;
+  -webkit-text-stroke: max(1px, .012em) #fff;
+}
+.title-fill {
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(10, 20, 80, .25);
+}
+.title-wipe,
+.title-bar {
+  position: absolute;
+  inset: 0;
+  background: #1400c8;
+}
+/* 시작 전에는 화면 오른쪽 밖에 둡니다. */
+.title-wipe {
+  transform: translateX(100vw);
+}
+/* 한 번 지나간 뒤 계속 남는 왼쪽 막대입니다. */
+.title-bar {
+  right: auto;
+  width: var(--bar-width);
+  visibility: hidden;
+}
+.title-bar.shown {
+  visibility: visible;
+}

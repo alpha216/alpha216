@@ -1,0 +1,19 @@
+{
+  // 기본 포매터를 Biome으로 지정
+  "editor.defaultFormatter": "biomejs.biome",
+  
+  // 저장할 때 자동으로 코드 정렬 및 린트(오류) 수정 실행
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+
+  // (선택) 기존 Prettier와 충돌을 방지하기 위해 JavaScript/TypeScript 파일에 명시적 지정
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}
