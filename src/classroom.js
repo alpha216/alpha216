@@ -398,7 +398,7 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
       box(0.58, 0.025, 2.35, -3.7, 6.84, z, material("#d9dedb"));
       for (const x of [-3.88, -3.52]) box(0.08, 0.04, 2.22, x, 6.81, z, lampMaterial);
       // 낮에는 꺼 둔 상태(세기 0)로 미리 넣어 둡니다. 조명 개수가 바뀌면 셰이더를 다시 만들어 화면이 멈칫하기 때문입니다.
-      const light = new THREE.PointLight("#fff1dc", 0, 16, 2);
+      const light = new THREE.PointLight("#f0ece6", 0, 16, 2);
       light.position.set(-3.7, 6.55, z);
       scene.add(light);
       lampLights.push(light);
