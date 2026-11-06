@@ -109,33 +109,33 @@ canvas {
 
 /* 두 번째 섹션 */
 #next {
-  --edge: 22%; /* 메뉴 쪽과 내용 쪽 경계(위쪽 기준) */
+  --edge: 21%; /* 메뉴 쪽과 내용 쪽 경계의 맨 위 위치 */
+  --bend: 7%; /* 맨 아래가 맨 위보다 오른쪽으로 나가는 정도(곡선) */
   /* 왼쪽: 장면이 비쳐 보이는 옅은 파란 막(물에 잠긴 느낌) */
   background: linear-gradient(180deg, rgba(40, 70, 210, .42), rgba(20, 40, 170, .52));
   color: #fff;
 }
-/* 오른쪽: 글이 잘 읽히도록 더 진한 남색 판. 경계는 비뚤비뚤하게 잘립니다. */
+/* 오른쪽: 글이 잘 읽히도록 더 진한 남색 판. 경계는 아래에서는 곧게 올라가다가 위로 갈수록 왼쪽으로 휘어 들어갑니다. */
 .panel {
   position: absolute;
   inset: 0;
   background: rgba(10, 22, 82, .9);
-  clip-path: polygon(var(--edge) 0, 100% 0, 100% 100%,
-    calc(var(--edge) + 6%) 100%, calc(var(--edge) + 5.2%) 86%, calc(var(--edge) + 3.6%) 62%,
-    calc(var(--edge) + 4%) 58%, calc(var(--edge) + 2.4%) 32%, calc(var(--edge) + 1.4%) 22%);
-  padding: 13vh 8vw 8vh calc(var(--edge) + 10%);
+  clip-path: polygon(100% 0, 100% 100%, calc(var(--edge) + var(--bend) * 1.000) 100%, calc(var(--edge) + var(--bend) * 0.990) 90%, calc(var(--edge) + var(--bend) * 0.960) 80%, calc(var(--edge) + var(--bend) * 0.910) 70%, calc(var(--edge) + var(--bend) * 0.840) 60%, calc(var(--edge) + var(--bend) * 0.750) 50%, calc(var(--edge) + var(--bend) * 0.640) 40%, calc(var(--edge) + var(--bend) * 0.510) 30%, calc(var(--edge) + var(--bend) * 0.360) 20%, calc(var(--edge) + var(--bend) * 0.190) 10%, calc(var(--edge) + var(--bend) * 0.000) 0%);
+  padding: 8vh 8vw 8vh calc(var(--edge) + var(--bend) + 5%);
   overflow-y: auto;
+  /* 내용은 항상 화면 높이 가운데. 내용이 길면 margin auto 덕분에 위가 잘리지 않고 스크롤됩니다. */
+  display: flex;
+  flex-direction: column;
 }
-.page h2 {
-  margin: 0 0 .4em;
-  font: 400 clamp(48px, 6vw, 96px) / .9 Anton, Impact, sans-serif;
-  letter-spacing: .01em;
-  transform: skewX(-8deg) rotate(-3deg);
-  transform-origin: left;
+.page {
+  margin-block: auto;
 }
 .page p {
   max-width: 34em;
   margin: 0 0 1em;
-  font: 400 clamp(16px, 1.35vw, 20px) / 1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* 본문 글꼴: Anton(메뉴)과 어울리는 살짝 좁은 산세리프 */
+  font: 500 clamp(17px, 1.5vw, 23px) / 1.55 "Barlow Semi Condensed", "Arial Narrow", sans-serif;
+  letter-spacing: .01em;
   color: #dbe6ff;
 }
 
@@ -178,9 +178,9 @@ canvas {
   color: #fff;
   outline: none;
 }
-/* 선택된 항목: 빨간 쐐기를 살짝 어긋나게 깔고, 그 위에 흰 쐐기, 글자는 검정 + 빨간 그림자 */
+/* 선택된 항목: 글자는 아래층, 흰·빨간 쐐기는 위층에 반투명으로 겹쳐 글자가 비쳐 보입니다. */
 .menu button[aria-current="true"] {
-  color: #0b0b18;
+  color: #fff;
   font-size: 1.3em;
   margin-block: .05em .12em;
   margin-right: .25em;
@@ -193,15 +193,19 @@ canvas {
 .menu button[aria-current="true"]::after {
   content: "";
   position: absolute;
+  z-index: 2;
   inset: .1em -.5em .02em -.25em;
   clip-path: polygon(0 62%, 100% 0, 92% 100%, 0 100%);
+  pointer-events: none;
 }
 .menu button[aria-current="true"]::before {
   background: #e8223a;
+  opacity: .45;
   translate: .12em .1em;
 }
 .menu button[aria-current="true"]::after {
   background: #fff;
+  opacity: .35;
 }
 
 /* 좁은 세로 화면: 메뉴를 위쪽에 가로로, 내용은 아래 */
@@ -217,7 +221,9 @@ canvas {
   }
   .menu button { margin-left: 0; }
   .panel {
-    clip-path: polygon(0 34%, 18% 33%, 45% 35%, 52% 34%, 100% 31%, 100% 100%, 0 100%);
-    padding: 40svh 7vw 6svh;
+    --edge-y: 34%;
+    --bend-y: 4%;
+    clip-path: polygon(0% calc(var(--edge-y) - var(--bend-y) * 0.000), 10% calc(var(--edge-y) - var(--bend-y) * 0.190), 20% calc(var(--edge-y) - var(--bend-y) * 0.360), 30% calc(var(--edge-y) - var(--bend-y) * 0.510), 40% calc(var(--edge-y) - var(--bend-y) * 0.640), 50% calc(var(--edge-y) - var(--bend-y) * 0.750), 60% calc(var(--edge-y) - var(--bend-y) * 0.840), 70% calc(var(--edge-y) - var(--bend-y) * 0.910), 80% calc(var(--edge-y) - var(--bend-y) * 0.960), 90% calc(var(--edge-y) - var(--bend-y) * 0.990), 100% calc(var(--edge-y) - var(--bend-y) * 1.000), 100% 100%, 0 100%);
+    padding: 36svh 7vw 6svh;
   }
 }

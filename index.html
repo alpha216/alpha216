@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
 <body>
 <!-- 캔버스 위에 겹치는 HTML 타이틀: 처음엔 파란 상자(.title-wipe)가 지나가고, 이후엔 채움(.title-fill)이 대각선으로 바뀝니다. -->
 <!-- Three.js가 생성한 canvas가 들어갈 영역입니다. 두 섹션 모두 이 장면 위에 HTML을 겹쳐 보여줍니다. -->
@@ -31,15 +31,14 @@
     <button type="button" data-page="contact"><span>CONTACT</span></button>
   </nav>
   <div class="panel">
-    <article class="page" data-page="about">
-      <h2>ABOUT</h2>
+    <article class="page" data-page="about" aria-label="ABOUT">
       <p>Hey, I’m Minsung Kim! I study computer science at Auburn University and enjoy building web apps that make everyday things a little easier.</p>
       <p>I’ve built Lyricbridge, which syncs lyrics with Spotify and translates them using AI, and AUParking, which helps students see when campus EV parking is busiest.</p>
     </article>
-    <article class="page" data-page="projects" hidden><h2>PROJECTS</h2></article>
-    <article class="page" data-page="experiences" hidden><h2>EXPERIENCES</h2></article>
-    <article class="page" data-page="images" hidden><h2>IMAGES</h2></article>
-    <article class="page" data-page="contact" hidden><h2>CONTACT</h2></article>
+    <article class="page" data-page="projects" aria-label="PROJECTS" hidden></article>
+    <article class="page" data-page="experiences" aria-label="EXPERIENCES" hidden></article>
+    <article class="page" data-page="images" aria-label="IMAGES" hidden></article>
+    <article class="page" data-page="contact" aria-label="CONTACT" hidden></article>
   </div>
 </section>
 <!-- 섹션을 바꿀 때 화면 전체를 잠깐 덮는 파란 박스 -->
