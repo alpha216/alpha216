@@ -53,7 +53,7 @@ try {
   });
   resize(); addEventListener('resize', resize);
   const title = startTitleOverlay();
-  startSections({ setView });
+  const sections = startSections({ setView });
   // 매 프레임 나무 전체를 미세하게 흔듭니다. 가지별 물리 시뮬레이션은 아닙니다.
   let previousFrame = null;
   document.addEventListener('visibilitychange', () => { previousFrame = null; });
@@ -64,6 +64,8 @@ try {
     if (!reduced) update(deltaSeconds);
     daylight.update();
     if (!reduced) tree.rotation.z = Math.sin(now * .0006) * .006;
+    // 메뉴 섹션에서는 장면을 드물게만 그려, 그 위 메뉴·내용 스크롤이 끊기지 않게 합니다(sections.js).
+    if (!sections.shouldRender(now)) return;
     renderer.render(scene, camera);
     // 카메라가 움직이거나 창 크기가 바뀌어도 타이틀이 칠판 위에 붙어 있도록 매 프레임 위치를 맞춥니다.
     title.followBoard(camera, boardCorners);

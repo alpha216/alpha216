@@ -35,8 +35,59 @@
       <p>Minsung Kim.</p>
       <p>Junior CS Student @ Auburn University</p>
     </article>
-    <article class="page" data-page="projects" aria-label="PROJECTS" hidden></article>
-    <article class="page" data-page="experiences" aria-label="EXPERIENCES" hidden>
+    <!-- 프로젝트마다 화면 한 장씩, 스크롤하면 이어서 내려갑니다(예시 3개, 설명은 임시 문구). -->
+    <!-- 프로젝트마다 화면 한 장씩, 스크롤하면 이어서 내려갑니다. 내용은 이력서(Resume.pdf) 기준, AUMAP은 스크린샷 기준 -->
+    <article class="page projects" data-page="projects" aria-label="PROJECTS">
+      <section class="project">
+        <h3 class="job-title project-title"><span class="project-number">1.</span> AUMAP</h3>
+        <div class="project-body">
+          <figure class="project-image"><img src="/img/aumap.jpg" alt="AUMap: campus map with bus routes, study room availability and campus events" loading="lazy"></figure>
+          <div class="project-text">
+            <p class="project-tag">Campus Map</p>
+            <p class="project-desc">A campus map for Auburn students that puts transit, study spaces and campus life in one place.</p>
+            <ul class="project-points">
+              <li>Shows bus routes and stops on an interactive campus map.</li>
+              <li>Lists live study room availability and saved places like Home or the Student Center.</li>
+              <li>Surfaces what’s happening on campus, from free food to AU Involve events.</li>
+            </ul>
+            <a class="project-link" href="https://aumap.alphacar.dev" target="_blank" rel="noopener">aumap.alphacar.dev ↗</a>
+
+          </div>
+        </div>
+      </section>
+      <section class="project">
+        <h3 class="job-title project-title"><span class="project-number">2.</span> LYRICBRIDGE</h3>
+        <div class="project-body">
+          <figure class="project-image"><img src="/img/lyricbridge.jpg" alt="Lyricbridge: synchronized lyrics with AI translation" loading="lazy"></figure>
+          <div class="project-text">
+            <p class="project-tag">TypeScript · Next.js · MongoDB · Web APIs</p>
+            <p class="project-desc">An AI-powered lyrics app that follows the song you’re playing on Spotify.</p>
+            <ul class="project-points">
+              <li>Full-stack web app that shows real-time, synchronized lyrics for the current Spotify track.</li>
+              <li>Translates lyrics with the Google Gemini API, combining live music data with AI language features.</li>
+            </ul>
+            <a class="project-link" href="https://lyricbridge.alphacar.dev" target="_blank" rel="noopener">lyricbridge.alphacar.dev ↗</a>
+          </div>
+        </div>
+      </section>
+      <section class="project">
+        <h3 class="job-title project-title"><span class="project-number">3.</span> AUPARKING</h3>
+        <div class="project-body">
+          <figure class="project-image"><img src="/img/auparking.png" alt="AUParking: heatmap dashboard of campus EV parking occupancy" loading="lazy"></figure>
+          <div class="project-text">
+            <p class="project-tag">TypeScript · React · PostgreSQL · Cloud </p>
+            <p class="project-desc">A parking occupancy data platform that shows when Auburn’s EV parking is busiest.</p>
+            <ul class="project-points">
+              <li>Automated pipeline collects EV parking occupancy every five minutes into PostgreSQL.</li>
+              <li>Aggregates records into heatmaps on an interactive dashboard of usage patterns.</li>
+              <li>Runs continuously on free-tier cloud infrastructure.</li>
+            </ul>
+            <a class="project-link" href="https://au-parking.alphacar.dev" target="_blank" rel="noopener">au-parking.alphacar.dev ↗</a>
+          </div>
+        </div>
+      </section>
+    </article>
+    <article class="page" data-page="experiences" aria-label="EXPERIENCES">
       <!-- 각 경력의 제목은 왼쪽 메뉴 글자처럼 기울어진 Anton 글씨로 꾸밉니다. -->
       <section class="job">
         <h3 class="job-title"><span>Accounting Associate</span> <small>Seasonal</small></h3>
@@ -62,8 +113,16 @@
         </ul>
       </section>
     </article>
-    <article class="page" data-page="images" aria-label="IMAGES" hidden></article>
-    <article class="page" data-page="contact" aria-label="CONTACT" hidden></article>
+    <article class="page" data-page="images" aria-label="IMAGES"></article>
+    <!-- 연락처: 이메일과 LinkedIn만 공개합니다(전화번호는 넣지 않음). -->
+    <article class="page contact" data-page="contact" aria-label="CONTACT">
+      <p class="contact-lead">Let’s build something.</p>
+      <ul class="contact-list">
+        <li><span class="contact-label">Email</span><a href="mailto:cgiasdf@gmail.com">cgiasdf@gmail.com</a></li>
+        <li><span class="contact-label">LinkedIn</span><a href="https://www.linkedin.com/in/alphacar216" target="_blank" rel="noopener">linkedin.com/in/alphacar216</a></li>
+        <li><span class="contact-label">Based in</span><span>Montgomery &amp; Auburn, AL</span></li>
+      </ul>
+    </article>
   </div>
 </section>
 <!-- 섹션을 바꿀 때 화면 전체를 잠깐 덮는 파란 박스 -->
