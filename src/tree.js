@@ -193,19 +193,20 @@ export function createCherryBlossomTree() {
   // 화면에는 넣지 않는 임시 객체로 각 꽃의 변환 행렬을 계산합니다.
   const dummy = new THREE.Object3D();
   const color = new THREE.Color();
-  // 깊이: 나무 기준 -Z(장면에서는 창에서 멀어지는 +X 방향)로 갈수록 0 → 1.
-  // 창에 가까운 꽃은 흰빛 도는 연분홍, 깊은 쪽 꽃일수록 진한 분홍이 됩니다.
-  const depthZ = flowersAt.map(p => p.z);
-  const nearZ = Math.max(...depthZ), farZ = Math.min(...depthZ);
-  const pale = { s: .4, l: .93 }, deep = { s: 1, l: .6 };
+  // 굵은 가지와의 거리: 굵은 가지 가까이 핀 꽃일수록 진한 분홍, 바깥 잔가지 끝으로 갈수록 연한 분홍이 됩니다.
+  // thickPoints(굵은 가지 위의 점들) 중 가장 가까운 점까지의 거리를 재고, 꽃들 거리의 90% 지점을 '가장 바깥'으로 봅니다.
+  const thickDistance = flowersAt.map(p => Math.sqrt(Math.min(...thickPoints.map(q => p.distanceToSquared(q)))));
+  const outerDistance = [...thickDistance].sort((a, b) => a - b)[Math.floor(thickDistance.length * .9)];
+  // 전체적으로 진한 편: 바깥쪽도 흰색이 아니라 분명한 분홍입니다.
+  const pale = { s: .65, l: .84 }, deep = { s: 1, l: .55 };
   flowersAt.forEach((p, i) => {
     dummy.position.copy(p);
     dummy.rotation.set(bloom() * Math.PI, bloom() * Math.PI, bloom() * Math.PI);
     const size = .07 + bloom() * .035;
     dummy.scale.setScalar(size); dummy.updateMatrix(); flowers.setMatrixAt(i, dummy.matrix);
-    // 깊이에 따라 연분홍 → 진분홍으로, 송이마다 조금씩 다르게
-    // 제곱근 곡선: 창에서 조금만 멀어져도 분홍이 진해지기 시작합니다.
-    const depth = Math.sqrt(THREE.MathUtils.clamp((nearZ - p.z) / (nearZ - farZ) + bloomSpread(.1), 0, 1));
+    // 굵은 가지에 가까울수록 1(진분홍), 바깥쪽일수록 0(연분홍). 송이마다 조금씩 다르게 흔듭니다.
+    // 제곱근 곡선: 굵은 가지에서 조금 떨어진 꽃까지도 진한 쪽으로 기울입니다.
+    const depth = Math.sqrt(THREE.MathUtils.clamp(1 - thickDistance[i] / outerDistance + bloomSpread(.1), 0, 1));
     flowers.setColorAt(i, color.setHSL(
       .945 + bloom() * .03,
       THREE.MathUtils.lerp(pale.s, deep.s, depth) + bloomSpread(.06),

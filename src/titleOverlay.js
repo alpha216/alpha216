@@ -11,7 +11,7 @@ const messages = [
 // coverAt: 그중 왼쪽 끝까지 다 늘어나 글자를 덮는 순간(0~1). 늘어나는 거리와 줄어드는 거리가 거의 같아 가운데(0.5)입니다.
 // fillOut/fillIn: 대각선으로 채움이 사라지는/채워지는 시간, outlineHold: 외곽선만 보이는 시간
 // hold: 처음 한 바퀴(이름 → 클릭 → 이름) 동안 문구가 머무는 시간, longHold: 그 뒤로 머무는 시간
-const timing = { delay: 4200, sweep: 700, coverAt: 0.5, hold: 3000, longHold: 6000, fillOut: 450, outlineHold: 120, fillIn: 500 };
+const timing = { delay: 4200, sweep: 700, coverAt: 0.5, hold: 3000, longHold: 6000, fillOut: 450, outlineHold: 0, fillIn: 500 };
 // 대각선 기울기(요소 너비 대비 %). 위쪽이 아래쪽보다 이만큼 오른쪽으로 기울어집니다.
 const slant = 12;
 const hidden = 'inset(0 0 0 100%)';
