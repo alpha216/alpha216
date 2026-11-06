@@ -188,14 +188,15 @@ export function createCherryBlossomTree() {
   // 창에 가까운 꽃은 흰빛 도는 연분홍, 깊은 쪽 꽃일수록 진한 분홍이 됩니다.
   const depthZ = flowersAt.map(p => p.z);
   const nearZ = Math.max(...depthZ), farZ = Math.min(...depthZ);
-  const pale = { s: .4, l: .9 }, deep = { s: .85, l: .72 };
+  const pale = { s: .28, l: .93 }, deep = { s: .95, l: .66 };
   flowersAt.forEach((p, i) => {
     dummy.position.copy(p);
     dummy.rotation.set(bloom() * Math.PI, bloom() * Math.PI, bloom() * Math.PI);
     const size = .07 + bloom() * .035;
     dummy.scale.setScalar(size); dummy.updateMatrix(); flowers.setMatrixAt(i, dummy.matrix);
     // 깊이에 따라 연분홍 → 진분홍으로, 송이마다 조금씩 다르게
-    const depth = THREE.MathUtils.clamp((nearZ - p.z) / (nearZ - farZ) + bloomSpread(.12), 0, 1);
+    // 제곱근 곡선: 창에서 조금만 멀어져도 분홍이 진해지기 시작합니다.
+    const depth = Math.sqrt(THREE.MathUtils.clamp((nearZ - p.z) / (nearZ - farZ) + bloomSpread(.1), 0, 1));
     flowers.setColorAt(i, color.setHSL(
       .945 + bloom() * .03,
       THREE.MathUtils.lerp(pale.s, deep.s, depth) + bloomSpread(.06),
