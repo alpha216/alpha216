@@ -70,9 +70,11 @@ canvas {
   inset: 0;
   background: #1400c8;
 }
-/* 시작 전에는 화면 오른쪽 밖에 둡니다. */
+/* 타이틀 왼쪽 끝부터 화면 오른쪽 끝까지 이어지는 상자. 시작 전에는 잘려서 보이지 않습니다. */
 .title-wipe {
-  transform: translateX(100vw);
+  right: auto;
+  width: var(--wipe-width, 100vw);
+  clip-path: inset(0 0 0 100%);
 }
 /* 한 번 지나간 뒤 계속 남는 왼쪽 막대입니다. */
 .title-bar {

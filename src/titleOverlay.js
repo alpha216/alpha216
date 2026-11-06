@@ -7,12 +7,14 @@ const messages = [
   ['MINSUNG', 'KIM'],
   ['CLICK TO', 'CONTINUE'],
 ];
-// sweep: 오른쪽 밖에서 왼쪽 막대까지 한 번에 지나가는 시간, coverAt: 그중 글자를 완전히 덮는 순간(0~1)
+// sweep: 파란 상자가 왼쪽 끝까지 늘어났다가 왼쪽 막대로 줄어들기까지 걸리는 시간,
+// coverAt: 그중 왼쪽 끝까지 다 늘어나 글자를 덮는 순간(0~1). 늘어나는 거리와 줄어드는 거리가 거의 같아 가운데(0.5)입니다.
 // fillOut/fillIn: 대각선으로 채움이 사라지는/채워지는 시간, outlineHold: 외곽선만 보이는 시간
 // hold: 처음 한 바퀴(이름 → 클릭 → 이름) 동안 문구가 머무는 시간, longHold: 그 뒤로 머무는 시간
-const timing = { delay: 4200, sweep: 700, coverAt: 0.6, hold: 3000, longHold: 6000, fillOut: 450, outlineHold: 120, fillIn: 500 };
+const timing = { delay: 4200, sweep: 700, coverAt: 0.5, hold: 3000, longHold: 6000, fillOut: 450, outlineHold: 120, fillIn: 500 };
 // 대각선 기울기(요소 너비 대비 %). 위쪽이 아래쪽보다 이만큼 오른쪽으로 기울어집니다.
 const slant = 12;
+const hidden = 'inset(0 0 0 100%)';
 const covered = 'inset(0 0 0 0)';
 const barOnly = 'inset(0 calc(100% - var(--bar-width)) 0 0)';
 
@@ -75,6 +77,8 @@ export function startTitleOverlay() {
     root.style.top = `${Math.round(top)}px`;
     root.style.width = `${Math.round(width)}px`;
     root.style.setProperty('--font', `${Math.round(font)}px`);
+    // 파란 상자는 타이틀 왼쪽 끝에서 화면 오른쪽 끝까지 이어집니다.
+    root.style.setProperty('--wipe-width', `${Math.round(innerWidth - left)}px`);
   }
 
   // 움직임 줄이기 설정이면 이름과 막대만 고정으로 보여줍니다.
@@ -86,12 +90,13 @@ export function startTitleOverlay() {
   }
 
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-  // 화면 오른쪽 밖 → 글자 전체를 덮음 → 왼쪽 막대. 중간에 멈추지 않도록 하나의 애니메이션으로 이어 붙입니다.
-  // 앞 구간은 가속(ease-in), 뒷 구간은 감속(ease-out)이라 덮는 순간에 가장 빠릅니다.
+  // 파란 상자: 화면 오른쪽 끝에서 왼쪽 끝까지 늘어났다가(왼쪽 가장자리 이동),
+  // 오른쪽 가장자리가 왼쪽으로 줄어들어 막대만 남습니다(오른쪽 가장자리 이동).
+  // 하나의 애니메이션으로 이어 붙이고, 앞은 가속·뒤는 감속이라 다 늘어나는 순간에 가장 빠르고 멈추지 않습니다.
   const sweep = () => wipe.animate([
-    { transform: 'translateX(100vw)', clipPath: covered, easing: 'cubic-bezier(.5,0,1,1)' },
-    { transform: 'translateX(0)', clipPath: covered, offset: timing.coverAt, easing: 'cubic-bezier(0,0,.4,1)' },
-    { transform: 'translateX(0)', clipPath: barOnly },
+    { clipPath: hidden, easing: 'cubic-bezier(.5,0,1,1)' },
+    { clipPath: covered, offset: timing.coverAt, easing: 'cubic-bezier(0,0,.4,1)' },
+    { clipPath: barOnly },
   ], { duration: timing.sweep, fill: 'forwards' }).finished;
 
   // 대각선(/) 경계를 왼쪽 → 오른쪽으로 옮깁니다. at은 경계의 가로 위치(%)입니다.

@@ -179,7 +179,16 @@ export function createCherryBlossomTree() {
   flowerGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   flowerGeometry.computeVertexNormals();
   // 같은 꽃 도형을 공유하는 InstancedMesh: 위치·회전·크기·색만 개별 지정합니다.
-  const flowers = new THREE.InstancedMesh(flowerGeometry, new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffc2dc', emissiveIntensity: .22, side: THREE.DoubleSide, roughness: .82 }), flowersAt.length);
+  // 꽃은 아주 약하게 스스로 빛나서 그늘에서도 회색으로 죽지 않습니다.
+  // 빛나는 색을 송이마다의 색(instanceColor)과 같게 해서, 깊은 쪽 진분홍 꽃이 그늘에서도 분홍으로 보이게 합니다.
+  const flowerMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: .3, side: THREE.DoubleSide, roughness: .82 });
+  flowerMaterial.onBeforeCompile = shader => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'vec3 totalEmissiveRadiance = emissive;',
+      'vec3 totalEmissiveRadiance = emissive * vColor;',
+    );
+  };
+  const flowers = new THREE.InstancedMesh(flowerGeometry, flowerMaterial, flowersAt.length);
   flowers.castShadow = true; flowers.receiveShadow = true;
   // 화면에는 넣지 않는 임시 객체로 각 꽃의 변환 행렬을 계산합니다.
   const dummy = new THREE.Object3D();
@@ -188,7 +197,7 @@ export function createCherryBlossomTree() {
   // 창에 가까운 꽃은 흰빛 도는 연분홍, 깊은 쪽 꽃일수록 진한 분홍이 됩니다.
   const depthZ = flowersAt.map(p => p.z);
   const nearZ = Math.max(...depthZ), farZ = Math.min(...depthZ);
-  const pale = { s: .28, l: .93 }, deep = { s: .95, l: .66 };
+  const pale = { s: .4, l: .93 }, deep = { s: 1, l: .6 };
   flowersAt.forEach((p, i) => {
     dummy.position.copy(p);
     dummy.rotation.set(bloom() * Math.PI, bloom() * Math.PI, bloom() * Math.PI);
