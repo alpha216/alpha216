@@ -216,5 +216,6 @@ export function createCherryBlossomTree() {
   tree.add(flowers);
   tree.userData.counts = { flowers: flowersAt.length, branchSegments: branchGeometries.length };
   tree.userData.thickPoints = thickPoints;
+  tree.userData.flowerMaterial = flowerMaterial;
   return tree;
 }

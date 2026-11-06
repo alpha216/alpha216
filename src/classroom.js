@@ -50,7 +50,7 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
   const boardCorners = createChalkboard();
   createWindowFrame();
   createGlass();
-  createCeilingFixtures();
+  const lamps = createCeilingFixtures();
   createFloor();
   createDesk();
   positionTree();
@@ -101,7 +101,7 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     cameraElapsed += deltaSeconds;
     applyCameraIntro();
   }
-  return { resize, update, boardCorners };
+  return { resize, update, boardCorners, sky, lamps };
 
   function applyBarkTexture() {
     // 나무껍질: 세로 곡선과 짧은 밝은 무늬를 겹쳐 만듭니다.
@@ -385,7 +385,10 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
   function createCeilingFixtures() {
     // Acoustic ceiling tiles, recessed fluorescent housing, and ventilation slots.
     // 천장 줄눈, 형광등 케이스와 환풍구를 작은 상자들로 조립합니다.
-    // 형광등 emissive는 표면만 밝히며 주변에 빛을 방출하는 광원은 아닙니다.
+    // 형광등 관은 하나의 재질을 공유합니다. daylight.js가 밤에 emissive를 올리고,
+    // 형광등 아래의 점광원(PointLight)을 켜서 실제로 교실을 밝힙니다.
+    const lampMaterial = material("#f0eee2", { emissive: "#ebe5d4", emissiveIntensity: 0.14 });
+    const lampLights = [];
 
     // const ceilingSeam = material('#b1b7b8');
     // for (let x = -15; x < 0; x += 1.2)box(.014, .012, 16, x, 6.951, 8, ceilingSeam);
@@ -393,21 +396,17 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     for (const z of [2.7, 7.5]) {
       box(0.72, 0.07, 2.5, -3.7, 6.89, z, aluminum);
       box(0.58, 0.025, 2.35, -3.7, 6.84, z, material("#d9dedb"));
-      for (const x of [-3.88, -3.52])
-        box(
-          0.08,
-          0.04,
-          2.22,
-          x,
-          6.81,
-          z,
-          material("#f0eee2", { emissive: "#ebe5d4", emissiveIntensity: 0.14 }),
-        );
+      for (const x of [-3.88, -3.52]) box(0.08, 0.04, 2.22, x, 6.81, z, lampMaterial);
+      // 낮에는 꺼 둔 상태(세기 0)로 미리 넣어 둡니다. 조명 개수가 바뀌면 셰이더를 다시 만들어 화면이 멈칫하기 때문입니다.
+      const light = new THREE.PointLight("#fff1dc", 0, 16, 2);
+      light.position.set(-3.7, 6.55, z);
+      scene.add(light);
+      lampLights.push(light);
     }
     box(0.7, 0.045, 0.65, -1.7, 6.9, 1.5, silver);
     for (let i = 0; i < 9; i++)
       box(0.57, 0.02, 0.023, -1.7, 6.87, 1.25 + i * 0.06, rubber);
-
+    return { material: lampMaterial, lights: lampLights };
   }
 
   function createFloor() {
@@ -473,7 +472,15 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     const sky = new THREE.Mesh(
       new THREE.SphereGeometry(85, 32, 24),
       new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 }, uCloudVelocity: { value: new THREE.Vector2(-cloudVelocity, cloudVelocity * 4) } },
+        uniforms: {
+          uTime: { value: 0 },
+          uCloudVelocity: { value: new THREE.Vector2(-cloudVelocity, cloudVelocity * 4) },
+          // daylight.js가 시각에 맞춰 바꾸는 값: 해 방향, 낮(0~1), 해 뜨고 질 무렵(0~1), 밤(0~1)
+          uSunDir: { value: new THREE.Vector3(.6, .6, .4).normalize() },
+          uDay: { value: 1 },
+          uTwilight: { value: 0 },
+          uNight: { value: 0 },
+        },
         side: THREE.BackSide,
         depthWrite: false,
         vertexShader:
@@ -481,11 +488,48 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
         fragmentShader: `varying vec3 v;
       uniform float uTime;
       uniform vec2 uCloudVelocity;
+      uniform vec3 uSunDir;
+      uniform float uDay, uTwilight, uNight;
       float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+      float hash3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
       float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
       float fbm(vec2 p){float n=0.;float a=.5;for(int i=0;i<5;i++){n+=a*noise(p);p=p*2.07+vec2(3.1,1.7);a*=.5;}return n;}
-      void main(){vec3 d=normalize(v);float h=smoothstep(-.1,.7,d.y);vec3 color=mix(vec3(.529,.854,1),vec3(.129,.537,1),h);
-      vec2 uv=d.xz/(max(d.y+.45,.15))*2.3;float n=fbm(uv*3.5 + uCloudVelocity*uTime);float clouds=smoothstep(.3,.5,n)*smoothstep(-.4,.1,d.y);vec3 white=mix(vec3(.87,.92,.99),vec3(1.,1.,1.),smoothstep(.48,.76,n));color=mix(color,white,clouds*.97);gl_FragColor=vec4(color,1.);}`,
+      void main(){
+        vec3 d=normalize(v);
+        float h=smoothstep(-.1,.7,d.y);
+        float toSun=max(dot(d,uSunDir),0.);
+        // 낮: 기존 파란 하늘
+        vec3 dayColor=mix(vec3(.529,.854,1),vec3(.129,.537,1),h);
+        // 해 뜨고 질 무렵: 해 쪽 지평선은 주황, 나머지 지평선은 분홍, 위쪽은 보랏빛 남색
+        vec3 duskHorizon=mix(vec3(.96,.6,.58),vec3(1.,.55,.25),pow(toSun,3.));
+        vec3 duskColor=mix(duskHorizon,vec3(.22,.26,.55),smoothstep(-.05,.6,d.y));
+        // 밤: 어두운 남색
+        vec3 nightColor=mix(vec3(.05,.07,.15),vec3(.01,.015,.05),h);
+        vec3 color=mix(nightColor,dayColor,uDay);
+        color=mix(color,duskColor,uTwilight);
+        // 별: 방향을 격자로 나눠 일부 칸에만 작은 점을 찍고, 천천히 반짝이게 합니다.
+        vec3 cell=floor(d*160.);
+        vec3 inCell=fract(d*160.)-.5;
+        float star=step(.986,hash3(cell))*smoothstep(.14,.0,length(inCell))*smoothstep(.0,.2,d.y);
+        star*=.55+.45*sin(uTime*1.7+hash3(cell+7.)*40.);
+        color+=vec3(.9,.93,1.)*star*uNight;
+        // 해: 원반과 주변 번짐. 해가 지평선 아래면 원반은 안 보이고 번짐만 남습니다.
+        float above=smoothstep(-.03,.02,uSunDir.y);
+        vec3 sunColor=mix(vec3(1.,.62,.32),vec3(1.,.97,.9),uDay*(1.-uTwilight));
+        float disc=smoothstep(.9993,.9997,dot(d,uSunDir));
+        float halo=pow(toSun,24.)*.35+pow(toSun,4.)*.18*uTwilight;
+        color+=sunColor*(disc*2.*above+halo*max(above,uTwilight));
+        // 구름: 낮엔 흰색, 해질녘엔 해 쪽이 주황으로 물들고, 밤엔 어두운 회청색
+        vec2 uv=d.xz/(max(d.y+.45,.15))*2.3;
+        float n=fbm(uv*3.5+uCloudVelocity*uTime);
+        float clouds=smoothstep(.3,.5,n)*smoothstep(-.4,.1,d.y);
+        vec3 white=mix(vec3(.87,.92,.99),vec3(1.,1.,1.),smoothstep(.48,.76,n));
+        vec3 duskCloud=mix(vec3(.58,.46,.6),vec3(1.,.64,.46),pow(toSun,2.));
+        vec3 cloudColor=mix(vec3(.1,.12,.2),white,uDay);
+        cloudColor=mix(cloudColor,duskCloud,uTwilight);
+        color=mix(color,cloudColor,clouds*mix(.65,.97,uDay));
+        gl_FragColor=vec4(color,1.);
+      }`,
       }),
     );
     scene.add(sky);

@@ -3,6 +3,7 @@ import { buildClassroom } from './classroom.js';
 import * as THREE from 'three';
 import { createCherryBlossomTree } from './tree.js';
 import { startTitleOverlay } from './titleOverlay.js';
+import { createDaylight } from './daylight.js';
 
 // 운영체제의 ‘움직임 줄이기’ 설정: 켜져 있으면 나무 애니메이션을 생략합니다.
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,7 +24,8 @@ try {
   // 실제 위치와 최종 화각은 classroom.js의 resize()에서 설정합니다.
   const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
   // 주변광을 낮춰 햇빛이 닿지 않는 실내는 어둡게 유지합니다.
-  scene.add(new THREE.HemisphereLight('#dfeaff', '#777c91', .48));
+  const hemisphere = new THREE.HemisphereLight('#dfeaff', '#777c91', .48);
+  scene.add(hemisphere);
   const light = new THREE.DirectionalLight('#fff5f4', 3.4);
   light.position.set(-5, 10, 7);
   light.castShadow = true;
@@ -42,7 +44,12 @@ try {
   const tree = createCherryBlossomTree();
   scene.add(tree);
   // 교실을 생성한 뒤 반환받은 화면 크기 대응 함수를 등록합니다.
-  const { resize, update, boardCorners } = buildClassroom(scene, tree, renderer, camera, light);
+  const { resize, update, boardCorners, sky, lamps } = buildClassroom(scene, tree, renderer, camera, light);
+  // 방문자 시각에 맞춰 해·하늘·조명을 바꿉니다(움직임 줄이기 설정과 상관없이 동작).
+  const daylight = createDaylight({
+    renderer, scene, sunlight: light, sky, hemisphere, rim, indoorFill, lamps,
+    flowerMaterial: tree.userData.flowerMaterial,
+  });
   resize(); addEventListener('resize', resize);
   const title = startTitleOverlay();
   // 매 프레임 나무 전체를 미세하게 흔듭니다. 가지별 물리 시뮬레이션은 아닙니다.
@@ -53,6 +60,7 @@ try {
     previousFrame = now;
     if (document.hidden) { previousFrame = null; return; }
     if (!reduced) update(deltaSeconds);
+    daylight.update();
     if (!reduced) tree.rotation.z = Math.sin(now * .0006) * .006;
     renderer.render(scene, camera);
     // 카메라가 움직이거나 창 크기가 바뀌어도 타이틀이 칠판 위에 붙어 있도록 매 프레임 위치를 맞춥니다.
