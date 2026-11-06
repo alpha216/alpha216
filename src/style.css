@@ -144,10 +144,12 @@ canvas {
 .menu {
   position: absolute;
   left: 2.4vw;
-  top: 50%;
-  translate: 0 -50%;
+  /* translate 대신 flex로 세로 가운데 정렬: 변형(transform)이 없어야 선택 항목의 쐐기가 뒤 배경과 섞입니다(mix-blend-mode). */
+  top: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: flex-start;
   gap: .05em;
   font: 400 clamp(26px, 3.1vw, 58px) / .95 Anton, Impact, sans-serif;
@@ -178,41 +180,64 @@ canvas {
   color: #fff;
   outline: none;
 }
-/* 선택된 항목: 글자는 아래층, 흰·빨간 쐐기는 위층에 반투명으로 겹쳐 글자가 비쳐 보입니다. */
+/* 선택된 항목(Figma 디자인): -13° 기운 검은 글자 위에 빨간 쐐기(color-dodge)와 흰 쐐기(overlay)를 겹칩니다.
+   쐐기 위치·크기는 Figma 비율 그대로: 가로는 글자 폭 기준 %, 세로는 글자 가운데 기준 em. */
 .menu button[aria-current="true"] {
-  color: #fff;
+  color: #0c0c0c;
   font-size: 1.3em;
-  margin-block: .05em .12em;
+  margin-block: .3em .35em;
   margin-right: .25em;
-  transform: skewX(-10deg) rotate(calc(var(--tilt, 0deg) - 4deg));
+  transform: none;
 }
 .menu button[aria-current="true"] span {
-  text-shadow: .05em .04em 0 #e8223a;
+  display: inline-block;
+  rotate: -13deg;
+}
+/* 쐐기 모양의 옅은 보라 바탕(Figma 배경색). 어두운 파란 막 위에서도 두 쐐기가 Figma처럼 흰·빨강으로 섞이게 합니다.
+   글자와 함께 돌아가므로 +13°로 되돌려 쐐기와 같은 자리에 둡니다. */
+.menu button[aria-current="true"] span::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -6%;
+  top: calc(50% - .72em);
+  width: 126%;
+  height: 1.17em;
+  transform-origin: 44.4% .72em;
+  rotate: 13deg;
+  background: #afaaff;
+  mask: url("/menu/wedge-back.svg") center / 100% 100% no-repeat;
 }
 .menu button[aria-current="true"]::before,
 .menu button[aria-current="true"]::after {
   content: "";
   position: absolute;
   z-index: 2;
-  inset: .1em -.5em .02em -.25em;
-  clip-path: polygon(0 62%, 100% 0, 92% 100%, 0 100%);
+  left: -6%;
+  background: center / 100% 100% no-repeat;
   pointer-events: none;
 }
 .menu button[aria-current="true"]::before {
-  background: #e8223a;
-  opacity: .45;
-  translate: .12em .1em;
+  top: calc(50% - .72em);
+  width: 126%;
+  height: 1.17em;
+  background-image: url("/menu/wedge-back.svg");
+  mix-blend-mode: color-dodge;
 }
 .menu button[aria-current="true"]::after {
-  background: #fff;
-  opacity: .35;
+  top: calc(50% - .645em);
+  width: 123.3%;
+  height: 1.115em;
+  background-image: url("/menu/wedge-front.svg");
+  mix-blend-mode: overlay;
 }
 
 /* 좁은 세로 화면: 메뉴를 위쪽에 가로로, 내용은 아래 */
 @media (max-width: 760px) {
   .menu {
     top: 7svh;
-    translate: none;
+    bottom: auto;
+    justify-content: flex-start;
     flex-direction: row;
     flex-wrap: wrap;
     gap: .1em .5em;
