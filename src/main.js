@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { createCherryBlossomTree } from './tree.js';
 import { startTitleOverlay } from './titleOverlay.js';
 import { createDaylight } from './daylight.js';
+import { startSections } from './sections.js';
 
 // 운영체제의 ‘움직임 줄이기’ 설정: 켜져 있으면 나무 애니메이션을 생략합니다.
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,7 +45,7 @@ try {
   const tree = createCherryBlossomTree();
   scene.add(tree);
   // 교실을 생성한 뒤 반환받은 화면 크기 대응 함수를 등록합니다.
-  const { resize, update, boardCorners, sky, lamps } = buildClassroom(scene, tree, renderer, camera, light);
+  const { resize, update, setView, boardCorners, sky, lamps } = buildClassroom(scene, tree, renderer, camera, light);
   // 방문자 시각에 맞춰 해·하늘·조명을 바꿉니다(움직임 줄이기 설정과 상관없이 동작).
   const daylight = createDaylight({
     renderer, scene, sunlight: light, sky, hemisphere, rim, indoorFill, lamps,
@@ -52,6 +53,7 @@ try {
   });
   resize(); addEventListener('resize', resize);
   const title = startTitleOverlay();
+  startSections({ setView });
   // 매 프레임 나무 전체를 미세하게 흔듭니다. 가지별 물리 시뮬레이션은 아닙니다.
   let previousFrame = null;
   document.addEventListener('visibilitychange', () => { previousFrame = null; });

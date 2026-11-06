@@ -85,3 +85,139 @@ canvas {
 .title-bar.shown {
   visibility: visible;
 }
+
+/* 섹션: 둘 다 같은 3D 장면 위에 겹칩니다. 파란 박스(#cover)가 화면을 다 덮은 동안 바뀝니다(sections.js). */
+.section {
+  position: fixed;
+  inset: 0;
+  height: 100svh;
+}
+.section[hidden] {
+  display: none;
+}
+#home {
+  cursor: pointer;
+}
+#cover {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #1400c8;
+  clip-path: inset(0 100% 0 0);
+  pointer-events: none;
+}
+
+/* 두 번째 섹션 */
+#next {
+  --edge: 22%; /* 메뉴 쪽과 내용 쪽 경계(위쪽 기준) */
+  /* 왼쪽: 장면이 비쳐 보이는 옅은 파란 막(물에 잠긴 느낌) */
+  background: linear-gradient(180deg, rgba(40, 70, 210, .42), rgba(20, 40, 170, .52));
+  color: #fff;
+}
+/* 오른쪽: 글이 잘 읽히도록 더 진한 남색 판. 경계는 비뚤비뚤하게 잘립니다. */
+.panel {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 22, 82, .9);
+  clip-path: polygon(var(--edge) 0, 100% 0, 100% 100%,
+    calc(var(--edge) + 6%) 100%, calc(var(--edge) + 5.2%) 86%, calc(var(--edge) + 3.6%) 62%,
+    calc(var(--edge) + 4%) 58%, calc(var(--edge) + 2.4%) 32%, calc(var(--edge) + 1.4%) 22%);
+  padding: 13vh 8vw 8vh calc(var(--edge) + 10%);
+  overflow-y: auto;
+}
+.page h2 {
+  margin: 0 0 .4em;
+  font: 400 clamp(48px, 6vw, 96px) / .9 Anton, Impact, sans-serif;
+  letter-spacing: .01em;
+  transform: skewX(-8deg) rotate(-3deg);
+  transform-origin: left;
+}
+.page p {
+  max-width: 34em;
+  margin: 0 0 1em;
+  font: 400 clamp(16px, 1.35vw, 20px) / 1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #dbe6ff;
+}
+
+/* 메뉴: 선택 안 된 항목은 옅은 하늘색으로 기울어진 글자,
+   선택된 항목은 흰·빨간 쐐기 위에 검은 글자(P3R 메뉴 느낌). */
+.menu {
+  position: absolute;
+  left: 2.4vw;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .05em;
+  font: 400 clamp(26px, 3.1vw, 58px) / .95 Anton, Impact, sans-serif;
+}
+.menu button {
+  position: relative;
+  border: 0;
+  padding: 0 .12em;
+  background: none;
+  font: inherit;
+  color: #9fe6ff;
+  cursor: pointer;
+  transform: skewX(-10deg) rotate(var(--tilt, 0deg));
+  margin-left: var(--shift, 0);
+  transition: color .15s, transform .15s;
+}
+.menu button:nth-child(1) { --tilt: -7deg; --shift: .25em; }
+.menu button:nth-child(2) { --tilt: 3deg; --shift: .7em; }
+.menu button:nth-child(3) { --tilt: 4deg; --shift: 0em; }
+.menu button:nth-child(4) { --tilt: -2deg; --shift: .45em; }
+.menu button:nth-child(5) { --tilt: 1deg; --shift: .1em; }
+.menu button span {
+  position: relative;
+  z-index: 1;
+}
+.menu button:hover,
+.menu button:focus-visible {
+  color: #fff;
+  outline: none;
+}
+/* 선택된 항목: 빨간 쐐기를 살짝 어긋나게 깔고, 그 위에 흰 쐐기, 글자는 검정 + 빨간 그림자 */
+.menu button[aria-current="true"] {
+  color: #0b0b18;
+  font-size: 1.3em;
+  margin-block: .05em .12em;
+  margin-right: .25em;
+  transform: skewX(-10deg) rotate(calc(var(--tilt, 0deg) - 4deg));
+}
+.menu button[aria-current="true"] span {
+  text-shadow: .05em .04em 0 #e8223a;
+}
+.menu button[aria-current="true"]::before,
+.menu button[aria-current="true"]::after {
+  content: "";
+  position: absolute;
+  inset: .1em -.5em .02em -.25em;
+  clip-path: polygon(0 62%, 100% 0, 92% 100%, 0 100%);
+}
+.menu button[aria-current="true"]::before {
+  background: #e8223a;
+  translate: .12em .1em;
+}
+.menu button[aria-current="true"]::after {
+  background: #fff;
+}
+
+/* 좁은 세로 화면: 메뉴를 위쪽에 가로로, 내용은 아래 */
+@media (max-width: 760px) {
+  .menu {
+    top: 7svh;
+    translate: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: .1em .5em;
+    right: 4vw;
+    font-size: 26px;
+  }
+  .menu button { margin-left: 0; }
+  .panel {
+    clip-path: polygon(0 34%, 18% 33%, 45% 35%, 52% 34%, 100% 31%, 100% 100%, 0 100%);
+    padding: 40svh 7vw 6svh;
+  }
+}

@@ -73,6 +73,20 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     camera.rotateX(cameraIntro.upwardAngle * (1 - eased));
   }
 
+  // 카메라가 바라보는 점: home은 첫 화면(칠판 + 창), menu는 다음 섹션(메뉴·내용)
+  const homeTarget = {
+    landscape: new THREE.Vector3(-1, 3.65, 1),
+    portrait: new THREE.Vector3(-3.4, 3.65, 0.9),
+  };
+  const menuTarget = new THREE.Vector3(4, 4.7, 1);
+  let view = 'home';
+  // 시점을 바로 바꿉니다(파란 박스가 화면을 덮은 동안 호출됩니다). 도입부 카메라 움직임은 끝난 것으로 처리합니다.
+  function setView(name) {
+    view = name;
+    cameraElapsed = Math.max(cameraElapsed, cameraIntro.hold + cameraIntro.duration);
+    resize();
+  }
+
   // 화면이 바뀌면 캔버스 크기·종횡비·화각을 갱신합니다. FOV가 작을수록 줌인됩니다.
   function resize() {
     const width = innerWidth,
@@ -88,8 +102,10 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     const fitFov = THREE.MathUtils.radToDeg(2 * Math.atan(halfWidth / camera.aspect));
     camera.fov = portrait ? 56 : THREE.MathUtils.clamp(fitFov, 32, 56);
     // position은 카메라 위치, lookAt은 바라보는 목표점입니다.
+    // 메뉴 화면(view === 'menu')에서는 더 오른쪽을 바라봐 칠판이 화면 왼쪽 15~20%에만 걸리게 합니다.
     camera.position.set(-7, 3.35, 9.3);
-    camera.lookAt(portrait ? -3.4 : -1, 3.65, portrait ? 0.9 : 1);
+    const target = view === 'menu' ? menuTarget : portrait ? homeTarget.portrait : homeTarget.landscape;
+    camera.lookAt(target);
     settledRotation.copy(camera.quaternion);
     applyCameraIntro();
     camera.updateProjectionMatrix();
@@ -101,7 +117,7 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
     cameraElapsed += deltaSeconds;
     applyCameraIntro();
   }
-  return { resize, update, boardCorners, sky, lamps };
+  return { resize, update, setView, boardCorners, sky, lamps };
 
   function applyBarkTexture() {
     // 나무껍질: 세로 곡선과 짧은 밝은 무늬를 겹쳐 만듭니다.
