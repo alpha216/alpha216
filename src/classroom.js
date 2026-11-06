@@ -455,10 +455,12 @@ export function buildClassroom(scene, tree, renderer, camera, sunlight) {
   }
 
   function positionTree() {
-    // 나무를 창밖으로 이동합니다. Z 위치로 모서리 벽에 가려지는 비율을 조절합니다.
-    tree.position.set(5.3, -1, -5.8);
+    // 나무를 창밖, 칠판 쪽 모서리 벽 뒤에 둡니다. 줄기와 굵은 가지는 벽에 가려지고,
+    // 창 쪽으로 뻗은 바깥 잔가지만 창 안으로 들어오도록 맞춘 값입니다(1440×900 화면 기준).
+    // x는 창문 벽(x=0)에서 떨어진 거리입니다. 나무의 건물 쪽 가지 길이 × 크기보다 커야 벽을 뚫지 않습니다.
+    tree.position.set(4, -6.5, -9.5);
     // 줄기·가지·꽃을 모두 같은 비율로 확대합니다.
-    tree.scale.setScalar(1.25);
+    tree.scale.setScalar(1.5);
     tree.rotation.y = -Math.PI / 2;
   }
 
